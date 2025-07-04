@@ -37,3 +37,7 @@ target/
 
 ### fleet
 .fleet
+
+
+.flattened-pom.xml
+
