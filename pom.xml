@@ -64,6 +64,7 @@
         <module>summer-validator</module>
         <module>summer-java-core</module>
         <module>summer-parent</module>
+        <module>summer-batch</module>
     </modules>
 
     <distributionManagement>
