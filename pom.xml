@@ -65,6 +65,7 @@
         <module>summer-java-core</module>
         <module>summer-parent</module>
         <module>summer-batch</module>
+        <module>summer-alarm</module>
     </modules>
 
     <distributionManagement>
