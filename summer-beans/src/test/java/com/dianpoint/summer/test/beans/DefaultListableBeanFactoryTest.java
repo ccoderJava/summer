@@ -35,13 +35,13 @@ public class DefaultListableBeanFactoryTest {
         defaultListableBeanFactory.registerBeanDefinition("baseService2",beanDefinition2);
         defaultListableBeanFactory.registerBeanDefinition("baseService3",beanDefinition3);
         defaultListableBeanFactory.registerBeanDefinition("baseService4",beanDefinition4);
-        // 注册beans
-        defaultListableBeanFactory.registerBean("baseService1",beanDefinition1);
-        defaultListableBeanFactory.registerBean("baseService2",beanDefinition2);
-        defaultListableBeanFactory.registerBean("baseService3",beanDefinition3);
-        defaultListableBeanFactory.registerBean("baseService4",beanDefinition4);
+        // 注册beans（注册实际的单例对象）
+        defaultListableBeanFactory.registerSingleton("baseService1", new BaseService());
+        defaultListableBeanFactory.registerSingleton("baseService2", new BaseService());
+        defaultListableBeanFactory.registerSingleton("baseService3", new BaseService());
+        defaultListableBeanFactory.registerSingleton("baseService4", new BaseService());
         // 覆盖一条
-        defaultListableBeanFactory.registerBean("baseService4",beanDefinition4);
+        defaultListableBeanFactory.registerSingleton("baseService4", new BaseService());
     }
 
 
@@ -60,7 +60,7 @@ public class DefaultListableBeanFactoryTest {
     @Test
     public void testGetBeanNamesForType() throws Exception {
         final String[] result = defaultListableBeanFactory.getBeanNamesForType(BaseService.class);
-        assertThat(result).isEmpty();
+        assertThat(result).containsExactly("baseService1", "baseService2", "baseService3", "baseService4");
     }
 
     @Test

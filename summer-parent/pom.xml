@@ -121,12 +121,6 @@
             </dependency>
             <dependency>
                 <groupId>io.github.dianpoint</groupId>
-                <artifactId>summer-engines</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.dianpoint</groupId>
                 <artifactId>summer-java-core</artifactId>
                 <version>${revision}</version>
             </dependency>
