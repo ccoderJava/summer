@@ -39,5 +39,8 @@ target/
 .fleet
 
 
+# macOS
+.DS_Store
+
 .flattened-pom.xml
 
