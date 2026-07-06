@@ -28,7 +28,7 @@ CI runs `mvn -B test` (CircleCI) and `mvn -B package` (GitHub Actions) on push/P
 
 ## Project Architecture
 
-Summer is a **minimal IoC/AOP kernel for Java 8**, inspired by the Spring Framework. It's a Maven multi-module project (`groupId: io.github.dianpoint`, version `0.1.0-SNAPSHOT`) with four modules:
+Summer is a **minimal IoC/AOP kernel for Java 8**, inspired by the Spring Framework. It's a Maven multi-module project (`groupId: com.dianpoint`, version `0.1.0-SNAPSHOT`) with four modules:
 
 ### Module Dependency Tree
 
