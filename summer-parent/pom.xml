@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.github.dianpoint</groupId>
+        <groupId>com.dianpoint</groupId>
         <artifactId>summer</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
 
-    <groupId>io.github.dianpoint</groupId>
+    <groupId>com.dianpoint</groupId>
     <artifactId>summer-parent</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
@@ -97,23 +97,35 @@
             </dependency>
 
             <dependency>
-                <groupId>io.github.dianpoint</groupId>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit-jupiter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit-jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit-jupiter.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.dianpoint</groupId>
                 <artifactId>summer-beans</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.dianpoint</groupId>
-                <artifactId>summer-engines</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.github.dianpoint</groupId>
+                <groupId>com.dianpoint</groupId>
                 <artifactId>summer-java-core</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.dianpoint</groupId>
+                <groupId>com.dianpoint</groupId>
                 <artifactId>summer-validator</artifactId>
                 <version>${revision}</version>
             </dependency>

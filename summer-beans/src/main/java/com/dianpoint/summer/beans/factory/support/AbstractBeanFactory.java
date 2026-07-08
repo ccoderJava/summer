@@ -64,6 +64,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
                     invokeInitMethod(beanDefinition, singleton);
                 }
                 // postProcessAfterInitialization
+                applyBeanPostProcessorsAfterInitialization(singleton, beanName);
             }
         }
         // 二次判断如果未实例化成功则异常处理
@@ -74,7 +75,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
     }
 
     private void invokeInitMethod(BeanDefinition beanDefinition, Object singleton) {
-        Class<?> clazz = beanDefinition.getClass();
+        Class<?> clazz = singleton.getClass();
         Method method = null;
         try {
             method = clazz.getMethod(beanDefinition.getInitMethodName());
@@ -110,7 +111,12 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
 
     @Override
     public Class<?> getType(String name) {
-        return this.beanDefinitions.get(name).getClass();
+        try {
+            return Class.forName(this.beanDefinitions.get(name).getClassName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -253,7 +259,16 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
                     paramValues[0] = pValue;
                 } else {
                     try {
-                        paramTypes[0] = Class.forName(pType);
+                        // 处理ref属性时，支持短类型名
+                        if ("String".equals(pType) || "java.lang.String".equals(pType)) {
+                            paramTypes[0] = String.class;
+                        } else if ("Integer".equals(pType) || "java.lang.Integer".equals(pType)) {
+                            paramTypes[0] = Integer.class;
+                        } else if ("int".equals(pType)) {
+                            paramTypes[0] = int.class;
+                        } else {
+                            paramTypes[0] = Class.forName(pType);
+                        }
                         // 当前为bean引用类型,再次调用getBean进行创建
                         paramValues[0] = getBean((String)pValue);
                     } catch (ClassNotFoundException | BeansException e) {
