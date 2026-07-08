@@ -4,7 +4,6 @@ import com.dianpoint.summer.beans.BeansException;
 import com.dianpoint.summer.beans.factory.BeanFactory;
 import com.dianpoint.summer.beans.factory.FactoryBean;
 import com.dianpoint.summer.util.ClassUtils;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * @author: github/ccoderJava
@@ -30,7 +29,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
 
     @Override
     public Object getObject() throws Exception {
-        return null;
+        return getSingletonInstance();
     }
 
     private synchronized void initializeAdvisor() {
@@ -79,6 +78,7 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
      */
     public synchronized Object getSingletonInstance() {
         if (this.singletonInstance == null) {
+            initializeAdvisor();
             AopProxy aopProxy = createAopProxy();
             this.singletonInstance = getProxy(aopProxy);
         }

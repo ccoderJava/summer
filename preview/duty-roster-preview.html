@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日值班表 - UI预览</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #4f46e5;
+  --primary-light: #eef2ff;
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+  --success: #059669;
+  --warning: #d97706;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,.1), 0 8px 10px -6px rgba(0,0,0,.1);
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; }
+/* ==================== 布局 ==================== */
+.app-container { max-width: 1280px; margin: 0 auto; padding: 20px; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.header h1 { font-size: 22px; font-weight: 700; color: var(--gray-900); }
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+/* ==================== 按钮 ==================== */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all .15s; white-space: nowrap; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: #4338ca; }
+.btn-outline { background: white; border-color: var(--gray-300); color: var(--gray-700); }
+.btn-outline:hover { background: var(--gray-50); border-color: var(--gray-400); }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #b91c1c; }
+.btn-ghost { background: transparent; color: var(--gray-600); padding: 6px 10px; }
+.btn-ghost:hover { background: var(--gray-100); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-xs { padding: 3px 7px; font-size: 11px; border-radius: 4px; }
+/* ==================== 系统Tabs ==================== */
+.system-tabs { display: flex; gap: 4px; background: white; border-radius: var(--radius); padding: 4px; box-shadow: var(--shadow); }
+.system-tab { padding: 8px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--gray-600); transition: all .15s; }
+.system-tab:hover { background: var(--gray-100); color: var(--gray-800); }
+.system-tab.active { background: var(--primary); color: white; }
+/* ==================== 视图切换 ==================== */
+.view-toggle { display: flex; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
+.view-toggle-btn { padding: 8px 16px; border: none; background: transparent; font-size: 13px; cursor: pointer; color: var(--gray-600); border-radius: var(--radius); transition: all .15s; }
+.view-toggle-btn.active { background: var(--gray-100); color: var(--gray-900); font-weight: 600; }
+/* ==================== 卡片 ==================== */
+.card { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; }
+.card-body { padding: 20px; }
+/* ==================== 日历 ==================== */
+.calendar-nav { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.calendar-nav h2 { font-size: 18px; font-weight: 600; min-width: 140px; text-align: center; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.calendar-day-header { text-align: center; font-size: 12px; font-weight: 600; color: var(--gray-500); padding: 8px 0; }
+.calendar-day-header.weekend { color: #f87171; }
+.calendar-cell { min-height: 100px; padding: 6px 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; transition: all .15s; position: relative; font-size: 13px; }
+.calendar-cell:hover { border-color: var(--primary); background: var(--primary-light); }
+.calendar-cell.today { background: #fef9c3; border-color: #fde047; }
+.calendar-cell.other-month { color: var(--gray-400); }
+.calendar-cell.weekend { background: var(--gray-50); }
+.calendar-cell .day-num { font-weight: 600; margin-bottom: 4px; font-size: 14px; }
+.calendar-cell .duty-info { margin-top: 2px; }
+.calendar-cell .duty-system { font-size: 10px; font-weight: 600; color: var(--primary); margin-top: 4px; }
+.calendar-cell .duty-person { font-size: 11px; color: var(--gray-600); line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.calendar-cell .duty-tag { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-right: 3px; }
+.calendar-cell .duty-tag.primary { background: #dbeafe; color: #1d4ed8; }
+.calendar-cell .duty-tag.backup { background: #fef3c7; color: #92400e; }
+/* ==================== 列表视图 ==================== */
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 12px 16px; background: var(--gray-50); font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--gray-200); }
+td { padding: 12px 16px; border-bottom: 1px solid var(--gray-100); }
+tr:hover td { background: var(--gray-50); }
+.duty-person-cell { display: flex; flex-wrap: wrap; gap: 4px; }
+.duty-person-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.duty-person-badge.primary { background: #dbeafe; color: #1d4ed8; }
+.duty-person-badge.backup { background: #fef3c7; color: #92400e; }
+/* ==================== 弹窗 ==================== */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal { background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); max-width: 640px; width: 90%; max-height: 85vh; overflow-y: auto; }
+.modal-lg { max-width: 800px; }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: white; border-radius: var(--radius-lg) var(--radius-lg) 0 0; z-index: 1; }
+.modal-header h3 { font-size: 18px; font-weight: 600; }
+.modal-body { padding: 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray-200); display: flex; justify-content: flex-end; gap: 8px; }
+.modal-close { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--gray-100); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; color: var(--gray-500); }
+.modal-close:hover { background: var(--gray-200); color: var(--gray-700); }
+/* ==================== 表单 ==================== */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; }
+.form-input, .form-select { width: 100%; padding: 9px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius); font-size: 14px; transition: border-color .15s; font-family: inherit; }
+.form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+.form-row { display: flex; gap: 12px; }
+.form-row > * { flex: 1; }
+/* ==================== 角色人员列表 ==================== */
+.role-section { margin-bottom: 20px; }
+.role-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.role-section-title { font-size: 14px; font-weight: 600; color: var(--gray-700); }
+.role-section-title .role-count { font-weight: 400; color: var(--gray-400); font-size: 12px; }
+.person-chip-list { display: flex; flex-wrap: wrap; gap: 6px; min-height: 36px; padding: 8px; border: 1px dashed var(--gray-200); border-radius: var(--radius); background: var(--gray-50); }
+.person-chip-list:empty::after { content: '暂未添加'; color: var(--gray-400); font-size: 13px; }
+.person-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: white; border: 1px solid var(--gray-200); border-radius: 20px; font-size: 13px; }
+.person-chip .remove-chip { cursor: pointer; color: var(--gray-400); font-weight: 700; font-size: 15px; line-height: 1; }
+.person-chip .remove-chip:hover { color: var(--danger); }
+.add-person-btn { font-size: 12px; color: var(--primary); cursor: pointer; padding: 4px 8px; border-radius: 4px; border: 1px dashed var(--primary); background: transparent; margin-top: 6px; display: inline-block; }
+.add-person-btn:hover { background: var(--primary-light); }
+/* ==================== 批量排班预览 ==================== */
+.preview-list { max-height: 300px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: var(--radius); margin-top: 16px; }
+.preview-item { display: flex; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--gray-100); font-size: 13px; gap: 12px; }
+.preview-item:last-child { border-bottom: none; }
+.preview-item .preview-date { font-weight: 600; min-width: 120px; }
+.preview-item .preview-weekday { color: var(--gray-400); min-width: 32px; font-size: 12px; }
+.preview-item .preview-weekday.weekend { color: #f87171; }
+/* ==================== Tab ==================== */
+.tabs { display: flex; border-bottom: 2px solid var(--gray-200); margin-bottom: 20px; }
+.tab-item { padding: 10px 20px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--gray-500); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+.tab-item:hover { color: var(--gray-700); }
+.tab-item.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+/* ==================== Toast ==================== */
+.toast { position: fixed; top: 24px; right: 24px; background: var(--success); color: white; padding: 12px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 200; animation: slideIn .3s ease; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+/* ==================== 辅助 ==================== */
+.hidden { display: none !important; }
+.text-muted { color: var(--gray-400); font-size: 12px; }
+.text-danger { color: var(--danger); font-size: 12px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.badge-success { background: #d1fae5; color: #065f46; }
+.mr-2 { margin-right: 8px; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+.mb-2 { margin-bottom: 8px; }
+.gap-2 { gap: 8px; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.flex-wrap { flex-wrap: wrap; }
+/* 侧边栏式页面切换 */
+.page { display: none; }
+.page.active { display: block; }
+/* 搜索下拉 */
+.search-dropdown { position: relative; }
+.search-dropdown-menu { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--gray-200); border-radius: var(--radius); box-shadow: var(--shadow-lg); max-height: 200px; overflow-y: auto; z-index: 50; display: none; }
+.search-dropdown-menu.show { display: block; }
+.search-dropdown-item { padding: 8px 12px; cursor: pointer; font-size: 13px; }
+.search-dropdown-item:hover { background: var(--primary-light); }
+/* checkbox */
+.checkbox-label { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+.checkbox-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- ==================== Header ==================== -->
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <h1>📋 每日值班表</h1>
+      <div class="system-tabs" id="systemTabs">
+        <button class="system-tab active" data-system="all">全部系统</button>
+        <button class="system-tab" data-system="ALARM_SYS_A">A系统</button>
+        <button class="system-tab" data-system="ALARM_SYS_B">B系统</button>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="view-toggle" id="viewToggle">
+        <button class="view-toggle-btn active" data-view="month">月视图</button>
+        <button class="view-toggle-btn" data-view="list">列表视图</button>
+      </div>
+      <button class="btn btn-outline" onclick="switchPage('import')">📥 导入</button>
+      <button class="btn btn-outline" onclick="switchPage('persons')">👥 人员管理</button>
+      <button class="btn btn-primary" onclick="openScheduleModal()">+ 排班</button>
+    </div>
+  </div>
+
+  <!-- ==================== 主页面：日历 / 列表 ==================== -->
+  <div id="page-calendar" class="page active">
+    <div class="card" id="calendarView">
+      <div class="card-body" id="calendarContent"></div>
+    </div>
+    <div class="card hidden" id="listView">
+      <div class="card-body" id="listContent"></div>
+    </div>
+  </div>
+
+  <!-- ==================== 导入页面 ==================== -->
+  <div id="page-import" class="page">
+    <div class="card">
+      <div class="card-header">
+        <h3>📥 批量导入排班</h3>
+        <button class="btn btn-outline btn-sm" onclick="switchPage('calendar')">← 返回日历</button>
+      </div>
+      <div class="card-body">
+        <div class="tabs">
+          <div class="tab-item active" data-tab="import-roster">导入名单自动排班</div>
+          <div class="tab-item" data-tab="import-csv">上传 CSV 文件</div>
+        </div>
+
+        <!-- Tab 1: 导入名单 -->
+        <div class="tab-content active" id="import-roster">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">系统</label>
+              <select class="form-select"><option>A系统 (ALARM_SYS_A)</option><option>B系统 (ALARM_SYS_B)</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">开始日期</label>
+              <input type="date" class="form-input" value="2026-07-06">
+            </div>
+            <div class="form-group">
+              <label class="form-label">结束日期</label>
+              <input type="date" class="form-input" value="2026-07-17">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label"><input type="checkbox" checked> 仅工作日（跳过周末）</label>
+          </div>
+          <div class="form-group">
+            <label class="form-label">排班名单（一行一人，格式：姓名,角色1,角色2）</label>
+            <textarea class="form-input" rows="6" placeholder="张三,PRIMARY&#10;李四,PRIMARY&#10;王五,BACKUP&#10;赵六,BACKUP" style="font-family: monospace;">张三,PRIMARY
+李四,PRIMARY
+王五,BACKUP
+赵六,BACKUP</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">预览结果（共 <span id="previewCount">10</span> 天）</label>
+            <div class="preview-list" id="rosterPreview"></div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-outline" onclick="switchPage('calendar')">取消</button>
+            <button class="btn btn-primary" onclick="showToast('✅ 导入成功！已生成 10 天排班')">确认导入</button>
+          </div>
+        </div>
+
+        <!-- Tab 2: 上传CSV -->
+        <div class="tab-content" id="import-csv">
+          <div class="form-group">
+            <label class="form-label">选择系统</label>
+            <select class="form-select"><option>A系统 (ALARM_SYS_A)</option><option>B系统 (ALARM_SYS_B)</option></select>
+          </div>
+          <div style="border: 2px dashed var(--gray-300); border-radius: var(--radius-lg); padding: 40px; text-align: center; cursor: pointer; margin-bottom: 16px;" onclick="document.getElementById('csvPreviewTable').classList.remove('hidden')">
+            <div style="font-size: 36px; margin-bottom: 8px;">📁</div>
+            <div style="font-weight: 600; margin-bottom: 4px;">点击上传或拖拽 CSV 文件</div>
+            <div class="text-muted">支持 .csv 格式，<a href="#" onclick="event.stopPropagation()">下载模板</a></div>
+          </div>
+          <div class="hidden" id="csvPreviewTable">
+            <label class="form-label">解析预览（共 10 行，0 条错误）</label>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead><tr><th>duty_date</th><th>system</th><th>person_id</th><th>duty_role</th><th>sort_order</th><th>状态</th></tr></thead>
+                <tbody>
+                  <tr><td>2026-07-01</td><td>ALARM_SYS_A</td><td>001</td><td>PRIMARY</td><td>1</td><td><span class="badge badge-success">✓ 正常</span></td></tr>
+                  <tr><td>2026-07-01</td><td>ALARM_SYS_A</td><td>002</td><td>BACKUP</td><td>2</td><td><span class="badge badge-success">✓ 正常</span></td></tr>
+                  <tr><td>2026-07-02</td><td>ALARM_SYS_A</td><td>999</td><td>PRIMARY</td><td>1</td><td><span style="color:var(--danger);">⚠ 人员不存在</span></td></tr>
+                  <tr><td>2026-07-02</td><td>ALARM_SYS_A</td><td>002</td><td>BACKUP</td><td>2</td><td><span class="badge badge-success">✓ 正常</span></td></tr>
+                  <tr><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td><td>...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;" class="mt-3">
+            <button class="btn btn-outline" onclick="switchPage('calendar')">取消</button>
+            <button class="btn btn-primary" onclick="showToast('✅ CSV 导入成功！')">确认导入</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 人员管理页面 ==================== -->
+  <div id="page-persons" class="page">
+    <div class="card">
+      <div class="card-header">
+        <h3>👥 人员管理</h3>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline btn-sm" onclick="showToast('📥 人员导出成功')">导出</button>
+          <button class="btn btn-outline btn-sm">导入 CSV</button>
+          <button class="btn btn-primary btn-sm" onclick="openPersonModal()">+ 新增人员</button>
+          <button class="btn btn-outline btn-sm" onclick="switchPage('calendar')">← 返回日历</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <input type="text" class="form-input" placeholder="搜索姓名或工号..." style="max-width:300px;">
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>工号</th><th>姓名</th><th>电话</th><th>邮箱</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>001</td><td>张三</td><td>13800001001</td><td>zhangsan@example.com</td><td><span class="badge badge-success">正常</span></td><td><button class="btn btn-ghost btn-xs" onclick="openPersonModal('001')">编辑</button><button class="btn btn-ghost btn-xs" style="color:var(--danger);">删除</button></td></tr>
+              <tr><td>002</td><td>李四</td><td>13800001002</td><td>lisi@example.com</td><td><span class="badge badge-success">正常</span></td><td><button class="btn btn-ghost btn-xs" onclick="openPersonModal('002')">编辑</button><button class="btn btn-ghost btn-xs" style="color:var(--danger);">删除</button></td></tr>
+              <tr><td>003</td><td>王五</td><td>13800001003</td><td>wangwu@example.com</td><td><span class="badge badge-success">正常</span></td><td><button class="btn btn-ghost btn-xs" onclick="openPersonModal('003')">编辑</button><button class="btn btn-ghost btn-xs" style="color:var(--danger);">删除</button></td></tr>
+              <tr><td>004</td><td>赵六</td><td>13800001004</td><td>zhaoliu@example.com</td><td><span class="badge badge-success">正常</span></td><td><button class="btn btn-ghost btn-xs" onclick="openPersonModal('004')">编辑</button><button class="btn btn-ghost btn-xs" style="color:var(--danger);">删除</button></td></tr>
+              <tr><td>005</td><td>孙七</td><td>13800001005</td><td>sunqi@example.com</td><td><span style="color:var(--gray-400);font-size:12px;">已删除</span></td><td><button class="btn btn-ghost btn-xs" style="color:var(--danger);">恢复</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 排班编辑弹窗 ==================== -->
+<div class="modal-overlay hidden" id="scheduleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📝 排班设置：<span id="scheduleDate">2026-07-03</span>（<span id="scheduleWeekday">周五</span>）</h3>
+      <button class="modal-close" onclick="closeModal('scheduleModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">系统</label>
+        <select class="form-select" id="scheduleSystem">
+          <option>A系统 (ALARM_SYS_A)</option>
+          <option>B系统 (ALARM_SYS_B)</option>
+        </select>
+      </div>
+
+      <!-- 主班 -->
+      <div class="role-section">
+        <div class="role-section-header">
+          <span class="role-section-title">🔴 主班 (PRIMARY) <span class="role-count">1人</span></span>
+          <button class="btn btn-ghost btn-xs" onclick="addPersonToRole('PRIMARY')">+ 添加</button>
+        </div>
+        <div class="person-chip-list" id="role-PRIMARY">
+          <span class="person-chip">张三 (001) <span class="remove-chip" onclick="this.parentElement.remove();updateRoleCount('PRIMARY')">×</span></span>
+        </div>
+      </div>
+
+      <!-- 副班 -->
+      <div class="role-section">
+        <div class="role-section-header">
+          <span class="role-section-title">🟡 副班 (BACKUP) <span class="role-count">2人</span></span>
+          <button class="btn btn-ghost btn-xs" onclick="addPersonToRole('BACKUP')">+ 添加</button>
+        </div>
+        <div class="person-chip-list" id="role-BACKUP">
+          <span class="person-chip">李四 (002) <span class="remove-chip" onclick="this.parentElement.remove();updateRoleCount('BACKUP')">×</span></span>
+          <span class="person-chip">王五 (003) <span class="remove-chip" onclick="this.parentElement.remove();updateRoleCount('BACKUP')">×</span></span>
+        </div>
+      </div>
+
+      <!-- 动态角色区域 -->
+      <div id="dynamicRoles"></div>
+      <div class="mt-3">
+        <button class="add-person-btn" onclick="addCustomRole()">+ 添加其他角色</button>
+      </div>
+
+      <!-- 添加人员建议 -->
+      <div class="search-dropdown hidden" id="personSearchDropdown" style="position:relative;margin-top:8px;">
+        <input type="text" class="form-input" placeholder="搜索人员姓名或工号..." id="personSearchInput" oninput="filterPersonSearch()">
+        <div class="search-dropdown-menu show" id="personSearchMenu" style="position:relative;">
+          <div class="search-dropdown-item" data-person-id="001" data-person-name="张三">张三 (001)</div>
+          <div class="search-dropdown-item" data-person-id="002" data-person-name="李四">李四 (002)</div>
+          <div class="search-dropdown-item" data-person-id="003" data-person-name="王五">王五 (003)</div>
+          <div class="search-dropdown-item" data-person-id="004" data-person-name="赵六">赵六 (004)</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" style="color:var(--danger);" onclick="showToast('已清除当天排班');closeModal('scheduleModal')">清除当天排班</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-outline" onclick="closeModal('scheduleModal')">取消</button>
+      <button class="btn btn-primary" onclick="showToast('✅ 排班已保存');closeModal('scheduleModal');refreshCalendarCell()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 批量排班弹窗 ==================== -->
+<div class="modal-overlay hidden" id="batchModal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>📋 批量排班</h3>
+      <button class="modal-close" onclick="closeModal('batchModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">系统</label>
+          <select class="form-select"><option>A系统 (ALARM_SYS_A)</option><option>B系统 (ALARM_SYS_B)</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">开始日期</label>
+          <input type="date" class="form-input" value="2026-07-06">
+        </div>
+        <div class="form-group">
+          <label class="form-label">结束日期</label>
+          <input type="date" class="form-input" value="2026-07-17">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-label"><input type="checkbox" checked> 仅工作日（跳过周末） <span class="text-muted">共 10 天</span></label>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">排班名单（按此顺序循环分配）</label>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>#</th><th>姓名</th><th>工号</th><th>主班</th><th>副班</th><th>操作</th></tr></thead>
+            <tbody id="batchRosterTable">
+              <tr><td>1</td><td>张三</td><td>001</td><td><input type="checkbox" checked></td><td><input type="checkbox"></td><td><button class="btn btn-ghost btn-xs">✕</button></td></tr>
+              <tr><td>2</td><td>李四</td><td>002</td><td><input type="checkbox" checked></td><td><input type="checkbox"></td><td><button class="btn btn-ghost btn-xs">✕</button></td></tr>
+              <tr><td>3</td><td>王五</td><td>003</td><td><input type="checkbox"></td><td><input type="checkbox" checked></td><td><button class="btn btn-ghost btn-xs">✕</button></td></tr>
+              <tr><td>4</td><td>赵六</td><td>004</td><td><input type="checkbox"></td><td><input type="checkbox" checked></td><td><button class="btn btn-ghost btn-xs">✕</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="add-person-btn mt-2">+ 从人员库添加</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">── 预览 ──</label>
+        <div class="preview-list" id="batchPreview"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('batchModal')">取消</button>
+      <button class="btn btn-primary" onclick="showToast('✅ 批量排班已生成');closeModal('batchModal')">确认排班</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 换班弹窗 ==================== -->
+<div class="modal-overlay hidden" id="swapModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🔄 临时换班</h3>
+      <button class="modal-close" onclick="closeModal('swapModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">日期 1</label>
+          <input type="date" class="form-input" value="2026-07-03" id="swapDate1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">人员 1</label>
+          <select class="form-select"><option>张三 (001) - PRIMARY</option><option>李四 (002) - BACKUP</option></select>
+        </div>
+      </div>
+      <div style="text-align:center;padding:8px;font-size:20px;color:var(--gray-400);">⇄</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">日期 2</label>
+          <input type="date" class="form-input" value="2026-07-05" id="swapDate2">
+        </div>
+        <div class="form-group">
+          <label class="form-label">人员 2</label>
+          <select class="form-select"><option>王五 (003) - PRIMARY</option><option>赵六 (004) - BACKUP</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">系统</label>
+        <select class="form-select"><option>A系统 (ALARM_SYS_A)</option><option>B系统 (ALARM_SYS_B)</option></select>
+      </div>
+      <div style="background:var(--gray-50);padding:12px;border-radius:var(--radius);font-size:13px;">
+        💡 交换后：<br>
+        07-03 张三 → 王五（王五替张三值 07-03 的班）<br>
+        07-05 王五 → 张三（张三替王五值 07-05 的班）
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('swapModal')">取消</button>
+      <button class="btn btn-primary" onclick="showToast('✅ 换班成功');closeModal('swapModal')">确认换班</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 人员编辑弹窗 ==================== -->
+<div class="modal-overlay hidden" id="personModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="personModalTitle">➕ 新增人员</h3>
+      <button class="modal-close" onclick="closeModal('personModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">工号</label>
+          <input type="text" class="form-input" placeholder="如 006">
+        </div>
+        <div class="form-group">
+          <label class="form-label">姓名</label>
+          <input type="text" class="form-input" placeholder="如 周八">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">电话</label>
+          <input type="text" class="form-input" placeholder="如 13800001006">
+        </div>
+        <div class="form-group">
+          <label class="form-label">邮箱</label>
+          <input type="text" class="form-input" placeholder="如 zhouba@example.com">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('personModal')">取消</button>
+      <button class="btn btn-primary" onclick="showToast('✅ 人员信息已保存');closeModal('personModal')">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 容器 -->
+<div id="toastContainer"></div>
+
+<script>
+// ==================== 工具函数 ====================
+function formatDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+function parseDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+// ==================== 模拟数据 ====================
+const PERSONS = {
+  '001': { id:'001', name:'张三', phone:'13800001001' },
+  '002': { id:'002', name:'李四', phone:'13800001002' },
+  '003': { id:'003', name:'王五', phone:'13800001003' },
+  '004': { id:'004', name:'赵六', phone:'13800001004' },
+  '005': { id:'005', name:'孙七', phone:'13800001005' },
+};
+
+// 模拟值班数据: key = "YYYY-MM-DD|SYSTEM"
+const scheduleData = {};
+function key(date, sys) { return date + '|' + sys; }
+
+// 生成 7 月的模拟数据
+function generateMockData() {
+  const systems = ['ALARM_SYS_A', 'ALARM_SYS_B'];
+  const primaryA = ['001','002']; // A系统主班人选
+  const backupA = ['003','004'];
+  const primaryB = ['003','005'];
+  const backupB = ['001','002'];
+
+  for (let d = 1; d <= 31; d++) {
+    const date = `2026-07-${String(d).padStart(2,'0')}`;
+    const dayOfWeek = parseDate(date).getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue; // 跳过周末
+
+    // A系统
+    const paIdx = (d - 1) % 2;
+    const baIdx = (d - 1) % 2;
+    scheduleData[key(date, 'ALARM_SYS_A')] = [
+      { personId: primaryA[paIdx], dutyRole: 'PRIMARY', sortOrder: 1 },
+      { personId: backupA[baIdx], dutyRole: 'BACKUP', sortOrder: 2 },
+    ];
+    // B系统
+    scheduleData[key(date, 'ALARM_SYS_B')] = [
+      { personId: primaryB[paIdx], dutyRole: 'PRIMARY', sortOrder: 1 },
+      { personId: backupB[baIdx], dutyRole: 'BACKUP', sortOrder: 2 },
+    ];
+  }
+}
+generateMockData();
+
+// ==================== 页面切换 ====================
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (page === 'calendar') renderCalendar();
+  if (page === 'import') generateRosterPreview();
+}
+
+// ==================== 视图切换 ====================
+let currentView = 'month';
+document.getElementById('viewToggle').addEventListener('click', function(e) {
+  if (e.target.dataset.view) {
+    currentView = e.target.dataset.view;
+    document.querySelectorAll('#viewToggle .view-toggle-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById('calendarView').classList.toggle('hidden', currentView !== 'month');
+    document.getElementById('listView').classList.toggle('hidden', currentView !== 'list');
+    if (currentView === 'list') renderListView();
+  }
+});
+
+// ==================== 系统切换 ====================
+let currentSystem = 'all';
+document.getElementById('systemTabs').addEventListener('click', function(e) {
+  if (e.target.dataset.system) {
+    currentSystem = e.target.dataset.system;
+    document.querySelectorAll('#systemTabs .system-tab').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    renderCalendar();
+  }
+});
+
+// ==================== 渲染日历 ====================
+function renderCalendar() {
+  const container = document.getElementById('calendarContent');
+  const today = new Date();
+  const year = 2026, month = 7; // July 2026
+
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0);
+  const startDayOfWeek = firstDay.getDay(); // 0=Sun
+  const totalDays = lastDay.getDate();
+
+  // 日历头部：上月第一天所在周的周日开始
+  const calStart = new Date(year, month - 1, 1 - ((startDayOfWeek + 6) % 7));
+  const weeks = [];
+  let current = new Date(calStart);
+  for (let w = 0; w < 6; w++) {
+    const week = [];
+    for (let d = 0; d < 7; d++) {
+      week.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    weeks.push(week);
+    if (current > lastDay && d >= 6) break;
+  }
+
+  let html = '<div class="calendar-nav"><button class="btn btn-outline btn-sm">◀</button><h2>2026年 7月</h2><button class="btn btn-outline btn-sm">▶</button></div>';
+  html += '<div class="calendar-grid">';
+  const dayHeaders = ['一','二','三','四','五','六','日'];
+  dayHeaders.forEach((h, i) => {
+    html += `<div class="calendar-day-header ${i>=5?'weekend':''}">${h}</div>`;
+  });
+
+  weeks.forEach(week => {
+    week.forEach(day => {
+      const dateStr = formatDate(day);
+      const dayNum = day.getDate();
+      const isCurrentMonth = day.getMonth() === month - 1;
+      const isToday = dateStr === formatDate(today);
+      const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+      const cls = [
+        'calendar-cell',
+        isCurrentMonth ? '' : 'other-month',
+        isToday ? 'today' : '',
+        isWeekend ? 'weekend' : '',
+      ].filter(Boolean).join(' ');
+
+      html += `<div class="${cls}" onclick="openScheduleModal('${dateStr}')">`;
+      html += `<div class="day-num">${dayNum}</div>`;
+
+      if (isCurrentMonth) {
+        const systems = currentSystem === 'all' ? ['ALARM_SYS_A', 'ALARM_SYS_B'] : [currentSystem];
+        systems.forEach(sys => {
+          const entries = scheduleData[key(dateStr, sys)];
+          if (entries && entries.length > 0) {
+            if (currentSystem === 'all') {
+              html += `<div class="duty-system">[${sys === 'ALARM_SYS_A' ? 'A系统' : 'B系统'}]</div>`;
+            }
+            entries.forEach(e => {
+              const p = PERSONS[e.personId];
+              const tagCls = e.dutyRole === 'PRIMARY' ? 'primary' : 'backup';
+              const roleLabel = e.dutyRole === 'PRIMARY' ? '主' : '副';
+              html += `<div class="duty-person"><span class="duty-tag ${tagCls}">${roleLabel}</span>${p ? p.name : '未知'}</div>`;
+            });
+          }
+        });
+      }
+      html += '</div>';
+    });
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ==================== 渲染列表视图 ====================
+function renderListView() {
+  const container = document.getElementById('listContent');
+  const systems = currentSystem === 'all' ? ['ALARM_SYS_A', 'ALARM_SYS_B'] : [currentSystem];
+  let html = '<div class="table-container"><table>';
+  html += '<thead><tr><th>日期</th><th>星期</th><th>系统</th><th>主班</th><th>副班</th><th>操作</th></tr></thead><tbody>';
+
+  const weekdays = ['日','一','二','三','四','五','六'];
+  for (let d = 1; d <= 31; d++) {
+    const dateStr = `2026-07-${String(d).padStart(2,'0')}`;
+    const dow = parseDate(dateStr).getDay();
+    if (dow === 0 || dow === 6) continue;
+
+    systems.forEach(sys => {
+      const entries = scheduleData[key(dateStr, sys)] || [];
+      const primary = entries.filter(e => e.dutyRole === 'PRIMARY');
+      const backup = entries.filter(e => e.dutyRole === 'BACKUP');
+      const primaryHtml = primary.map(e => {
+        const p = PERSONS[e.personId];
+        return `<span class="duty-person-badge primary">${p?p.name:'未知'}</span>`;
+      }).join(' ');
+      const backupHtml = backup.map(e => {
+        const p = PERSONS[e.personId];
+        return `<span class="duty-person-badge backup">${p?p.name:'未知'}</span>`;
+      }).join(' ');
+
+      html += `<tr>`;
+      html += `<td style="font-weight:600;">${dateStr}</td>`;
+      html += `<td style="color:${dow===0||dow===6?'#f87171':'var(--gray-600)'};">${weekdays[dow]}</td>`;
+      html += `<td><span style="color:var(--primary);font-weight:500;">${sys === 'ALARM_SYS_A' ? 'A系统' : 'B系统'}</span></td>`;
+      html += `<td><div class="duty-person-cell">${primaryHtml || '-'}</div></td>`;
+      html += `<td><div class="duty-person-cell">${backupHtml || '-'}</div></td>`;
+      html += `<td><button class="btn btn-ghost btn-xs" onclick="openScheduleModal('${dateStr}')">编辑</button><button class="btn btn-ghost btn-xs" onclick="openSwapModal('${dateStr}')">换班</button></td>`;
+      html += `</tr>`;
+    });
+  }
+
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+// ==================== 弹窗控制 ====================
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function openScheduleModal(dateStr) {
+  document.getElementById('scheduleDate').textContent = dateStr || '2026-07-03';
+  const dow = parseDate(dateStr || '2026-07-03').getDay();
+  const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+  document.getElementById('scheduleWeekday').textContent = weekdays[dow];
+  openModal('scheduleModal');
+}
+
+function openBatchModal() {
+  generateBatchPreview();
+  openModal('batchModal');
+}
+
+function openSwapModal(dateStr) { openModal('swapModal'); }
+
+function openPersonModal(personId) {
+  if (personId) {
+    document.getElementById('personModalTitle').textContent = '✏️ 编辑人员';
+    // 预填数据...
+  } else {
+    document.getElementById('personModalTitle').textContent = '➕ 新增人员';
+  }
+  openModal('personModal');
+}
+
+// ==================== 人员搜索 ====================
+let activeRoleForAdd = null;
+function addPersonToRole(role) {
+  activeRoleForAdd = role;
+  document.getElementById('personSearchDropdown').classList.remove('hidden');
+  document.getElementById('personSearchInput').focus();
+}
+
+document.getElementById('personSearchMenu').addEventListener('click', function(e) {
+  const item = e.target.closest('.search-dropdown-item');
+  if (!item || !activeRoleForAdd) return;
+  const pid = item.dataset.personId;
+  const pname = item.dataset.personName;
+  const list = document.getElementById('role-' + activeRoleForAdd);
+  const chip = document.createElement('span');
+  chip.className = 'person-chip';
+  chip.innerHTML = `${pname} (${pid}) <span class="remove-chip" onclick="this.parentElement.remove();updateRoleCount('${activeRoleForAdd}')">×</span>`;
+  list.appendChild(chip);
+  updateRoleCount(activeRoleForAdd);
+  document.getElementById('personSearchDropdown').classList.add('hidden');
+  document.getElementById('personSearchInput').value = '';
+  activeRoleForAdd = null;
+});
+
+function updateRoleCount(role) {
+  const list = document.getElementById('role-' + role);
+  const count = list.querySelectorAll('.person-chip').length;
+  const header = list.closest('.role-section').querySelector('.role-count');
+  header.textContent = count + '人';
+}
+
+function addCustomRole() {
+  const roleName = prompt('输入角色名称（如 STANDBY）：');
+  if (!roleName) return;
+  const container = document.getElementById('dynamicRoles');
+  const div = document.createElement('div');
+  div.className = 'role-section';
+  div.innerHTML = `
+    <div class="role-section-header">
+      <span class="role-section-title">⚪ ${roleName} <span class="role-count">0人</span></span>
+      <button class="btn btn-ghost btn-xs" onclick="addPersonToRole('${roleName}')">+ 添加</button>
+    </div>
+    <div class="person-chip-list" id="role-${roleName}"></div>
+  `;
+  container.appendChild(div);
+  // Register the new role's person list
+  document.getElementById('role-' + roleName).addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-chip')) {
+      e.target.parentElement.remove();
+      updateRoleCount(roleName);
+    }
+  });
+}
+
+// ==================== 批量排班预览 ====================
+function generateBatchPreview() {
+  const container = document.getElementById('batchPreview');
+  const weekdays = ['日','一','二','三','四','五','六'];
+  let html = '';
+  let idx = 0;
+  for (let d = 6; d <= 17; d++) {
+    const dateStr = `2026-07-${String(d).padStart(2,'0')}`;
+    const dow = parseDate(dateStr).getDay();
+    if (dow === 0 || dow === 6) continue;
+    const primary = ['张三','李四'][idx % 2];
+    const backup = ['王五','赵六'][idx % 2];
+    html += `<div class="preview-item"><span class="preview-date">${dateStr}</span><span class="preview-weekday">${weekdays[dow]}</span> 主:${primary} &nbsp; 副:${backup}</div>`;
+    idx++;
+  }
+  container.innerHTML = html;
+}
+
+// ==================== 导入名单预览 ====================
+function generateRosterPreview() {
+  const container = document.getElementById('rosterPreview');
+  const weekdays = ['日','一','二','三','四','五','六'];
+  let html = '';
+  let idx = 0;
+  for (let d = 6; d <= 17; d++) {
+    const dateStr = `2026-07-${String(d).padStart(2,'0')}`;
+    const dow = parseDate(dateStr).getDay();
+    if (dow === 0 || dow === 6) continue;
+    const primary = ['张三','李四'][idx % 2];
+    const backup = ['王五','赵六'][idx % 2];
+    html += `<div class="preview-item"><span class="preview-date">${dateStr}</span><span class="preview-weekday ${dow===0||dow===6?'weekend':''}">${weekdays[dow]}</span> 主:${primary} &nbsp; 副:${backup}</div>`;
+    idx++;
+  }
+  container.innerHTML = html;
+  document.getElementById('previewCount').textContent = idx;
+}
+
+// ==================== Tab 切换 ====================
+document.querySelectorAll('.tabs').forEach(tabGroup => {
+  tabGroup.addEventListener('click', function(e) {
+    if (e.target.classList.contains('tab-item')) {
+      const tabId = e.target.dataset.tab;
+      tabGroup.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      e.target.classList.add('active');
+      const parent = tabGroup.parentElement;
+      parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      parent.querySelector('#' + tabId).classList.add('active');
+    }
+  });
+});
+
+// ==================== Toast ====================
+function showToast(msg) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => { toast.remove(); }, 2500);
+}
+
+// ==================== 初始渲染 ====================
+renderCalendar();
+generateRosterPreview();
+
+// ==================== 键盘关闭弹窗 ====================
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(m => m.classList.add('hidden'));
+  }
+});
+
+// 点击遮罩关闭
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.classList.add('hidden');
+  });
+});
+
+// 右键菜单：单日快捷排班
+document.getElementById('calendarContent').addEventListener('contextmenu', function(e) {
+  const cell = e.target.closest('.calendar-cell');
+  if (cell && !cell.classList.contains('other-month')) {
+    e.preventDefault();
+    const dateStr = cell.querySelector('.day-num')?.textContent;
+    const fullDate = `2026-07-${String(dateStr).padStart(2,'0')}`;
+    if (confirm(`快速操作：${fullDate}\n\n确定 = 编辑排班\n取消 = 返回`)) {
+      openScheduleModal(fullDate);
+    }
+  }
+});
+</script>
+
+</body>
+</html>

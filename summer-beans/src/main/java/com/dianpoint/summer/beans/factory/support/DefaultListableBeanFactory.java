@@ -33,7 +33,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         List<String> results = new ArrayList<>();
         for (String beanName : this.beanDefinitionNames) {
             BeanDefinition beanDefinition = this.getBeanDefinition(beanName);
-            Class<?> classToMatch = beanDefinition.getClass();
+            Class<?> classToMatch;
+            try {
+                classToMatch = Class.forName(beanDefinition.getClassName());
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                continue;
+            }
             if (type.isAssignableFrom(classToMatch)) {
                 results.add(beanName);
             }
