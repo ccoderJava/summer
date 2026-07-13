@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Test Commands
 
 ```bash
-# Build the entire project (Java 8+ required)
+# Build the entire project (JDK 8-21, bytecode target Java 8)
 mvn clean install
 
 # Run all tests across all modules
@@ -24,11 +24,11 @@ mvn test -pl summer-java-core -Dtest=PredicatesTest
 mvn install -DskipTests
 ```
 
-CI runs `mvn -B test` (CircleCI) and `mvn -B package` (GitHub Actions) on push/PR to `main`. Java 8 is the target version.
+CI runs `mvn -B test` (CircleCI, JDK 21) and a matrix `mvn -B package` (GitHub Actions, JDK 8/11/17/21) on push/PR to `main`. Bytecode target is Java 8.
 
 ## Project Architecture
 
-Summer is a **minimal IoC/AOP kernel for Java 8**, inspired by the Spring Framework. It's a Maven multi-module project (`groupId: com.dianpoint`, version `0.1.0-SNAPSHOT`) with four modules:
+Summer is a **minimal IoC/AOP kernel for Java 8+**, inspired by the Spring Framework. It's a Maven multi-module project (`groupId: com.dianpoint`, version `0.1.0-SNAPSHOT`) with four modules:
 
 ### Module Dependency Tree
 

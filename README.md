@@ -81,7 +81,7 @@ the status, progress, and related information of main and sub-tasks.
 ## Getting Started
 
 ### Prerequisites
-- Java 8 or higher
+- Java 8 or higher (JDK 8, 11, 17, 21 tested)
 - Maven
 
 ### Installation
@@ -93,22 +93,8 @@ cd summer
 ```
 
 2. Build the project using Maven:
+
 ```shell
-Make sure you have Java and Maven installed in your development environment.
-
-### Installation
-
-Clone the repository to your local machine:
-
-```bash
-git clone https://github.com/dianpoint/summer.git
-
-```
-
-Navigate to the project directory and build the project:
-
-```bash
-cd summer
 mvn clean install
 ```
 
@@ -238,8 +224,8 @@ summer/
 - [x] Add AOP support
 - [ ] Improve validation module with more rules
 - [ ] Add support for annotation-based configuration
-  + [ ] Implement @Autowired and @Component annotations
-  + [ ]  Provide annotation scanning functionality
+  + [x] Implement @Autowired annotation (field injection by name)
+  + [ ] Implement @Component scanning
 
 See the issues for a full list of proposed features and known issues.
 
@@ -260,30 +246,6 @@ Summer is distributed under the Apache License 2.0 License. See License.txt for 
 ### Contact
 + Email: congccoder@gmail.com
 + Github: https://github.com/ccoderJava
-## Usage
-
-## Roadmap
-
-- [x] xxx
-- [x] xxx
-- [ ] xxx
-- [ ] xxx
-    - [ ] xxx
-    - [ ] xxx
-
-See the [issues](https://github/dianpoint/summer/issues) for a full list of proposed features and known issues.
-
-## Contributing
-
-## License
-
-`Summer` distributed under the [`Apache License 2.0`](https://github.com/dianpoint/summer/blob/main/LICENSE) License.
-See `License.txt` for more information.
-
-## Contact
-
-+ Email: [congccoder@gmail.com](mailto://congccoder@gmail.com)
-+ Github: [https://github.com/ccoderJava](https://github.com/ccoderJava)
 
 [//]: # (Markdown Links & Images)
 

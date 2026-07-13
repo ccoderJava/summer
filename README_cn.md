@@ -83,18 +83,68 @@ mvn clean install
 
 ## 用法
 
+#### Bean 定义与注入
+通过 XML 文件定义 Bean，并使用 `XmlBeanDefinitionReader` 加载并注册：
+```java
+AbstractBeanFactory beanFactory = new DefaultListableBeanFactory();
+Resource resource = new ClassPathResource("beans.xml");
+XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
+reader.loadBeanDefinitions(resource);
+Object bean = beanFactory.getBean("beanName");
+```
+
+#### AOP 用法
+通过 `ProxyFactoryBean` 为目标对象创建代理，并在方法执行前后织入通知：
+```java
+ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
+proxyFactoryBean.setTarget(target);
+proxyFactoryBean.setInterceptorName("interceptorBeanName");
+proxyFactoryBean.setBeanFactory(beanFactory);
+Object proxy = proxyFactoryBean.getSingletonInstance();
+```
+
+#### 校验
+使用 `ValidationRules` 与 `Validators` 对集合与对象进行校验：
+```java
+ValidationRule<Collection<?>> rule = ValidationRules.minsize(5);
+ValidationResult result = rule.validate(collection);
+
+User user = new User(null, "123@mail.com");
+List<ValidationResult> results = Validators.annotated(User.class).validate(user);
+```
+
+#### RequestMapping 注解
+```java
+@RequestMapping("/hello")
+public String hello() { return "Hello, World!"; }
+```
+
+#### Autowired 注解
+```java
+@Autowired
+private AnotherService anotherService;
+```
+
 ## 计划
 
-- [x] xxx
-- [x] xxx
-- [ ] xxx
-- [ ] xxx
-    - [ ] xxx
-    - [ ] xxx
+- [x] 实现基础的 Bean 定义与注入
+- [x] 添加 AOP 支持
+- [ ] 丰富校验模块规则
+- [ ] 支持基于注解的配置
+  + [x] 实现 @Autowired 注解（按名称字段注入）
+  + [ ] 实现 @Component 扫描
 
 有关建议功能和已知问题的完整列表，请参考[issues](https://github/dianpoint/summer/issues)
 
 ## 贡献代码
+
+开源社区因贡献而精彩，任何形式的贡献都将被郑重感谢。
+
+1. Fork 本仓库
+2. 创建特性分支（`git checkout -b feature/AmazingFeature`）
+3. 提交改动（`git commit -m 'Add some AmazingFeature'`）
+4. 推送到分支（`git push origin feature/AmazingFeature`）
+5. 发起 Pull Request
 
 ## 开源许可
 
