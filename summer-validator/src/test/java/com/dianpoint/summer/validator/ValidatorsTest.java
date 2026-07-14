@@ -79,8 +79,9 @@ public class ValidatorsTest {
     }
 
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void testCollection_returnsDefaultCollectionValidator() {
-        CollectionValidator<String, java.util.List<String>> validator = Validators.collection(java.util.List.class, String.class);
+        CollectionValidator<String, java.util.List<String>> validator = Validators.collection((Class) java.util.List.class, String.class);
         assertThat(validator).isInstanceOf(DefaultCollectionValidator.class);
     }
 }
