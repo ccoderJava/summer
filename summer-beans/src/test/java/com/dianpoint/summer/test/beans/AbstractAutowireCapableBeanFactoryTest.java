@@ -64,7 +64,7 @@ public class AbstractAutowireCapableBeanFactoryTest {
     public void testApplyBeanPostProcessorsAfterInitialization() throws Exception {
         final BaseService baseService = (BaseService)abstractAutowireCapableBeanFactory.getBean("baseService");
         final Object result = abstractAutowireCapableBeanFactory.applyBeanPostProcessorsAfterInitialization(baseService, "baseService");
-        Assert.assertNull( result);
+        Assert.assertEquals(baseService, result);
     }
 
 
