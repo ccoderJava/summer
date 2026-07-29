@@ -42,8 +42,14 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
         }
         if (advice instanceof BeforeAdvice) {
             methodInterceptor = new MethodBeforeAdviceInterceptor((MethodBeforeAdvice) advice);
+        } else if (advice instanceof ThrowsAdvice) {
+            methodInterceptor = new AfterThrowingAdviceInterceptor((ThrowsAdvice) advice);
+        } else if (advice instanceof AfterReturningAdvice) {
+            methodInterceptor = new AfterReturningAdviceInterceptor((AfterReturningAdvice) advice);
         } else if (advice instanceof AfterAdvice) {
             methodInterceptor = new AfterReturningAdviceInterceptor((AfterReturningAdvice) advice);
+        } else if (advice instanceof AroundAdvice) {
+            methodInterceptor = new AroundAdviceInterceptor((AroundAdvice) advice);
         } else if (advice instanceof MethodInterceptor) {
             methodInterceptor = (MethodInterceptor) advice;
         }
