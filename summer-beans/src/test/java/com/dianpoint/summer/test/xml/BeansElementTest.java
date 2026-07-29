@@ -33,7 +33,7 @@ public class BeansElementTest {
     @Test
     public void getBean_UppercaseCase() throws BeansException {
         // 严格beanName区分大小写,所以"THEFOOL"会报空指针
-        assertThatThrownBy(()->applicationContext.getBean("THEFOOL")).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(()->applicationContext.getBean("THEFOOL")).isInstanceOf(BeansException.class);
     }
 
 

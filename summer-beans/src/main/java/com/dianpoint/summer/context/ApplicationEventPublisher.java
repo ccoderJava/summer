@@ -9,5 +9,5 @@ public interface ApplicationEventPublisher {
 
     void publisher(ApplicationEvent event);
 
-    void addApplicationListener(ApplicationListener listener);
+    void addApplicationListener(ApplicationListener<?> listener);
 }

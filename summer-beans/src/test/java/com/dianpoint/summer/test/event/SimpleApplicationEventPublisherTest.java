@@ -17,7 +17,11 @@ public class SimpleApplicationEventPublisherTest {
     @BeforeClass
     public static void setUp() {
         simpleApplicationEventPublisher = new SimpleApplicationEventPublisher();
-        simpleApplicationEventPublisher.addApplicationListener(new ApplicationListener());
+        simpleApplicationEventPublisher.addApplicationListener(new ApplicationListener<ApplicationEvent>() {
+            @Override
+            public void onApplicationEvent(ApplicationEvent event) {
+            }
+        });
     }
 
     @Test

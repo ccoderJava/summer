@@ -1,60 +1,33 @@
 package com.dianpoint.summer.context;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.dianpoint.summer.beans.BeansException;
 import com.dianpoint.summer.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import com.dianpoint.summer.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import com.dianpoint.summer.beans.factory.config.BeanFactoryPostProcessor;
 import com.dianpoint.summer.beans.factory.config.ConfigurableListableBeanFactory;
 import com.dianpoint.summer.beans.factory.support.DefaultListableBeanFactory;
-import com.dianpoint.summer.beans.factory.xml.XmlBeanDefinitionReader;
-import com.dianpoint.summer.core.ClassPathXmlResource;
-import com.dianpoint.summer.core.Resource;
+import com.dianpoint.summer.core.scanner.ClassPathComponentScanner;
 
-/**
- * @author: congcong
- * @email: congccoder@gmail.com
- * @date: 2023/3/17 11:59
- */
-public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
+import java.util.ArrayList;
+import java.util.List;
+
+public class AnnotationConfigApplicationContext extends AbstractApplicationContext {
+
     private DefaultListableBeanFactory beanFactory;
+
+    private List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
     private InitDestroyAnnotationBeanPostProcessor initDestroyBeanPostProcessor;
 
-    public ClassPathXmlApplicationContext(String fileName) {
-        this(fileName, true);
-    }
-
-    /**
-     * 
-     * <ul>
-     * <li>构造函数读取fileName中外部xml配置,将Bean的定义加载进入内存，并且初始化给BeanDefinition</li>
-     * <li>context负责整合IOC容器的启动过程，读外部配置，解析Bean定义，创建BeanFactory</li>
-     * </ul>
-     *
-     * @param fileName
-     *            外部xml配置文件
-     * @param isRefresh
-     *            是否刷新Bean
-     */
-    public ClassPathXmlApplicationContext(String fileName, boolean isRefresh) {
-        // 加载外部xml文件定义为Resource资源
-        Resource resource = new ClassPathXmlResource(fileName);
-
+    public AnnotationConfigApplicationContext(String... basePackages) {
         DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
-        // 解析BeanDefinition定义
-        XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(factory);
-        xmlBeanDefinitionReader.loadBeanDefinitions(resource);
-        // 创建BeanFactory
+        ClassPathComponentScanner scanner = new ClassPathComponentScanner(factory);
+        scanner.scan(basePackages);
         this.beanFactory = factory;
-        if (isRefresh) {
-            try {
-                refresh();
-            } catch (BeansException e) {
-                e.printStackTrace();
-            }
+        try {
+            refresh();
+        } catch (BeansException e) {
+            e.printStackTrace();
         }
     }
 
@@ -89,7 +62,7 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    public void addApplicationListener(ApplicationListener<?> listener) {
+    public void addApplicationListener(ApplicationListener listener) {
         getApplicationEventPublisher().addApplicationListener(listener);
     }
 
@@ -100,11 +73,7 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     @Override
     public void registerListeners() {
-        this.getApplicationEventPublisher().addApplicationListener(new ApplicationListener<ApplicationEvent>() {
-            @Override
-            public void onApplicationEvent(ApplicationEvent event) {
-            }
-        });
+        this.getApplicationEventPublisher().addApplicationListener(new ApplicationListener());
     }
 
     @Override
@@ -143,5 +112,4 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
         }
         super.close();
     }
-
 }
