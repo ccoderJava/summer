@@ -91,7 +91,7 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    public void addApplicationListener(ApplicationListener listener) {
+    public void addApplicationListener(ApplicationListener<?> listener) {
         getApplicationEventPublisher().addApplicationListener(listener);
     }
 
@@ -102,8 +102,11 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     @Override
     public void registerListeners() {
-        ApplicationListener applicationListener = new ApplicationListener();
-        this.getApplicationEventPublisher().addApplicationListener(applicationListener);
+        this.getApplicationEventPublisher().addApplicationListener(new ApplicationListener<ApplicationEvent>() {
+            @Override
+            public void onApplicationEvent(ApplicationEvent event) {
+            }
+        });
     }
 
     @Override
