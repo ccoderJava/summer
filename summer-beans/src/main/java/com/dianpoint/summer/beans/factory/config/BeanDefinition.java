@@ -12,8 +12,8 @@ import com.dianpoint.summer.beans.PropertyValues;
  * @date: 2023/3/17 11:51
  */
 public class BeanDefinition {
-    String SCOPE_SINGLETON = "singleton";
-    String SCOPE_PROTOTYPE = "prototype";
+    public static final String SCOPE_SINGLETON = "singleton";
+    public static final String SCOPE_PROTOTYPE = "prototype";
 
     private boolean lazyInit = true;
     private String[] dependsOn;
@@ -29,6 +29,8 @@ public class BeanDefinition {
     public BeanDefinition(String id, String className) {
         this.id = id;
         this.className = className;
+        this.constructorArgumentValues = new ConstructorArgumentValues();
+        this.propertyValues = new PropertyValues();
     }
 
     public boolean isLazyInit() {
