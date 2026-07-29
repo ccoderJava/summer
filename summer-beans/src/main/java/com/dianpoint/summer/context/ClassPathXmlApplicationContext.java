@@ -21,8 +21,6 @@ import com.dianpoint.summer.core.Resource;
 public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     private DefaultListableBeanFactory beanFactory;
 
-    private List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
-
     private InitDestroyAnnotationBeanPostProcessor initDestroyBeanPostProcessor;
 
     public ClassPathXmlApplicationContext(String fileName) {
@@ -114,7 +112,13 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) {
-
+        for (BeanFactoryPostProcessor processor : this.getBeanFactoryPostProcessors()) {
+            try {
+                processor.postProcessBeanFactory(configurableListableBeanFactory);
+            } catch (BeansException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
