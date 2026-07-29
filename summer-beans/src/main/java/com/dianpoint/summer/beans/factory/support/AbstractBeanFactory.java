@@ -246,6 +246,24 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
                     } else if ("int".equals(constructorArgumentValue.getType())) {
                         paramTypes[i] = int.class;
                         paramValues[i] = Integer.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("long".equals(constructorArgumentValue.getType())
+                        || "java.lang.Long".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = Long.class;
+                        paramValues[i] = Long.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("Long".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = long.class;
+                        paramValues[i] = Long.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("boolean".equals(constructorArgumentValue.getType())
+                        || "java.lang.Boolean".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = Boolean.class;
+                        paramValues[i] = Boolean.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("Boolean".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = boolean.class;
+                        paramValues[i] = Boolean.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("double".equals(constructorArgumentValue.getType())
+                        || "java.lang.Double".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = Double.class;
+                        paramValues[i] = Double.valueOf((String)constructorArgumentValue.getValue());
                     } else {
                         paramTypes[i] = String.class;
                         paramValues[i] = constructorArgumentValue.getValue();
@@ -296,8 +314,25 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
                     } else if ("int".equals(pType)) {
                         paramTypes[0] = int.class;
                         pValue = Integer.valueOf(pValue+"");
+                    } else if ("long".equals(pType)
+                        || "java.lang.Long".equals(pType)) {
+                        paramTypes[0] = Long.class;
+                        pValue = Long.valueOf(pValue+"");
+                    } else if ("Long".equals(pType)) {
+                        paramTypes[0] = long.class;
+                        pValue = Long.valueOf(pValue+"");
+                    } else if ("boolean".equals(pType)
+                        || "java.lang.Boolean".equals(pType)) {
+                        paramTypes[0] = Boolean.class;
+                        pValue = Boolean.valueOf(pValue+"");
+                    } else if ("Boolean".equals(pType)) {
+                        paramTypes[0] = boolean.class;
+                        pValue = Boolean.valueOf(pValue+"");
+                    } else if ("double".equals(pType)
+                        || "java.lang.Double".equals(pType)) {
+                        paramTypes[0] = Double.class;
+                        pValue = Double.valueOf(pValue+"");
                     } else {
-                        // TODO: 2023/3/18 此处对于数据类型需要逐个处理 此处仅仅建立框架 后续完善 兜底String类型处理
                         paramTypes[0] = String.class;
                     }
                     paramValues[0] = pValue;
