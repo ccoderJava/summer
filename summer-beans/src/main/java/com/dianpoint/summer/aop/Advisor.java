@@ -12,4 +12,8 @@ public interface Advisor {
     void setMethodInterceptor(MethodInterceptor methodInterceptor);
 
     Advice getAdvice();
+
+    Pointcut getPointcut();
+
+    void setPointcut(Pointcut pointcut);
 }
