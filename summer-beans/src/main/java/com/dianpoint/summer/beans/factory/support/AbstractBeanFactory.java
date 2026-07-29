@@ -60,15 +60,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
         if (beanDefinition.isSingleton()) {
             singleton = this.earlySingletonObjects.get(beanName);
             if (singleton == null) {
-                singleton = this.earlySingletonObjects.get(beanName);
-                if (singleton == null) {
-                    singleton = createBean(beanDefinition);
-                    this.registerBean(beanName, singleton);
-                    applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
-                    invokeInitMethods(beanDefinition, singleton);
-                    applyBeanPostProcessorsAfterInitialization(singleton, beanName);
-                }
-                applyBeanPostProcessorsAfterInitialization(singleton, beanName);
+                singleton = createBean(beanDefinition);
+                this.registerBean(beanName, singleton);
+                applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
+                invokeInitMethods(beanDefinition, singleton);
+                singleton = applyBeanPostProcessorsAfterInitialization(singleton, beanName);
             }
             if (singleton == null) {
                 throw new BeansException("bean is null.");
@@ -79,7 +75,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
         Object prototype = createBean(beanDefinition);
         applyBeanPostProcessorsBeforeInitialization(prototype, beanName);
         invokeInitMethods(beanDefinition, prototype);
-        applyBeanPostProcessorsAfterInitialization(prototype, beanName);
+        prototype = applyBeanPostProcessorsAfterInitialization(prototype, beanName);
         if (prototype == null) {
             throw new BeansException("bean is null.");
         }

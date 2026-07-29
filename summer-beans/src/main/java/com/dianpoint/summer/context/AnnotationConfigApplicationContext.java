@@ -73,7 +73,11 @@ public class AnnotationConfigApplicationContext extends AbstractApplicationConte
 
     @Override
     public void registerListeners() {
-        this.getApplicationEventPublisher().addApplicationListener(new ApplicationListener());
+        this.getApplicationEventPublisher().addApplicationListener(new ApplicationListener<ApplicationEvent>() {
+            @Override
+            public void onApplicationEvent(ApplicationEvent event) {
+            }
+        });
     }
 
     @Override
