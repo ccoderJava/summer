@@ -32,13 +32,13 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
 
     public AbstractBeanFactory() {}
 
-    /**
-     * 对于refresh方法进行刷新Bean处理。本质上是对于所有的beanName分别进行getBean处理
-     */
     public void refresh() {
         for (String beanName : beanDefinitionNames) {
             try {
-                getBean(beanName);
+                BeanDefinition bd = beanDefinitions.get(beanName);
+                if (!bd.isPrototype()) {
+                    getBean(beanName);
+                }
             } catch (BeansException e) {
                 e.printStackTrace();
             }
@@ -47,31 +47,39 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
 
     @Override
     public Object getBean(String beanName) throws BeansException {
-        Object singleton = this.getSingleton(beanName);
-        if (singleton == null) {
-            // 当前没有单例对象时 进行获取一个早期的bean定义
-            singleton = this.earlySingletonObjects.get(beanName);
-            if (singleton == null) {
-                BeanDefinition beanDefinition = beanDefinitions.get(beanName);
-                // 根据beanDefinition创建得到的单例实例化对象
-                singleton = createBean(beanDefinition);
-                this.registerBean(beanName, singleton);
-                // beanPostProcessorBeforeInitialization执行
-                applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
+        BeanDefinition beanDefinition = beanDefinitions.get(beanName);
 
-                // initMethod
-                if (beanDefinition.getInitMethodName() != null) {
-                    invokeInitMethod(beanDefinition, singleton);
+        if (beanDefinition.isSingleton()) {
+            Object singleton = this.getSingleton(beanName);
+            if (singleton == null) {
+                singleton = this.earlySingletonObjects.get(beanName);
+                if (singleton == null) {
+                    singleton = createBean(beanDefinition);
+                    this.registerBean(beanName, singleton);
+                    applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
+
+                    if (beanDefinition.getInitMethodName() != null) {
+                        invokeInitMethod(beanDefinition, singleton);
+                    }
+                    applyBeanPostProcessorsAfterInitialization(singleton, beanName);
                 }
-                // postProcessAfterInitialization
-                applyBeanPostProcessorsAfterInitialization(singleton, beanName);
             }
+            if (singleton == null) {
+                throw new BeansException("bean is null.");
+            }
+            return singleton;
         }
-        // 二次判断如果未实例化成功则异常处理
-        if (singleton == null) {
+
+        Object prototype = createBean(beanDefinition);
+        applyBeanPostProcessorsBeforeInitialization(prototype, beanName);
+        if (beanDefinition.getInitMethodName() != null) {
+            invokeInitMethod(beanDefinition, prototype);
+        }
+        applyBeanPostProcessorsAfterInitialization(prototype, beanName);
+        if (prototype == null) {
             throw new BeansException("bean is null.");
         }
-        return singleton;
+        return prototype;
     }
 
     private void invokeInitMethod(BeanDefinition beanDefinition, Object singleton) {
