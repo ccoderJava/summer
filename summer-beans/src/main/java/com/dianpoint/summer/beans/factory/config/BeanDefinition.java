@@ -20,6 +20,7 @@ public class BeanDefinition {
     private ConstructorArgumentValues constructorArgumentValues;
     private PropertyValues propertyValues;
     private String initMethodName;
+    private String destroyMethodName;
     private volatile Object beanClass;
     private String id;
     private String className;
@@ -71,6 +72,14 @@ public class BeanDefinition {
 
     public void setInitMethodName(String initMethodName) {
         this.initMethodName = initMethodName;
+    }
+
+    public String getDestroyMethodName() {
+        return destroyMethodName;
+    }
+
+    public void setDestroyMethodName(String destroyMethodName) {
+        this.destroyMethodName = destroyMethodName;
     }
 
     public Class<?> getBeanClass() {

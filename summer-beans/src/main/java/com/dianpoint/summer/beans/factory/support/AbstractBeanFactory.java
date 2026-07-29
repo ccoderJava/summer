@@ -57,10 +57,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
                     singleton = createBean(beanDefinition);
                     this.registerBean(beanName, singleton);
                     applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
-
-                    if (beanDefinition.getInitMethodName() != null) {
-                        invokeInitMethod(beanDefinition, singleton);
-                    }
+                    invokeInitMethods(beanDefinition, singleton);
                     applyBeanPostProcessorsAfterInitialization(singleton, beanName);
                 }
             }
@@ -72,9 +69,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
 
         Object prototype = createBean(beanDefinition);
         applyBeanPostProcessorsBeforeInitialization(prototype, beanName);
-        if (beanDefinition.getInitMethodName() != null) {
-            invokeInitMethod(beanDefinition, prototype);
-        }
+        invokeInitMethods(beanDefinition, prototype);
         applyBeanPostProcessorsAfterInitialization(prototype, beanName);
         if (prototype == null) {
             throw new BeansException("bean is null.");
@@ -82,20 +77,56 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
         return prototype;
     }
 
-    private void invokeInitMethod(BeanDefinition beanDefinition, Object singleton) {
-        Class<?> clazz = singleton.getClass();
-        Method method = null;
-        try {
-            method = clazz.getMethod(beanDefinition.getInitMethodName());
-            method.invoke(singleton);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
+    private void invokeInitMethods(BeanDefinition beanDefinition, Object singleton) {
+        if (singleton instanceof com.dianpoint.summer.beans.factory.InitializingBean) {
+            try {
+                ((com.dianpoint.summer.beans.factory.InitializingBean) singleton).afterPropertiesSet();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (beanDefinition.getInitMethodName() != null) {
+            Class<?> clazz = singleton.getClass();
+            Method method = null;
+            try {
+                method = clazz.getMethod(beanDefinition.getInitMethodName());
+                method.invoke(singleton);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public abstract Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName);
 
     public abstract Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName);
+
+    public void destroySingletons() {
+        String[] singletonNames = getSingletonNames();
+        for (String beanName : singletonNames) {
+            Object singleton = getSingleton(beanName);
+            if (singleton instanceof com.dianpoint.summer.beans.factory.DisposableBean) {
+                try {
+                    ((com.dianpoint.summer.beans.factory.DisposableBean) singleton).destroy();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            BeanDefinition bd = beanDefinitions.get(beanName);
+            if (bd != null && bd.getDestroyMethodName() != null) {
+                invokeDestroyMethod(singleton, bd.getDestroyMethodName());
+            }
+        }
+    }
+
+    private void invokeDestroyMethod(Object bean, String methodName) {
+        try {
+            Method method = bean.getClass().getMethod(methodName);
+            method.invoke(bean);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public boolean containsBean(String name) {
