@@ -175,7 +175,9 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
     @Override
     public void close() {
-
+        if (getBeanFactory() instanceof com.dianpoint.summer.beans.factory.support.AbstractBeanFactory) {
+            ((com.dianpoint.summer.beans.factory.support.AbstractBeanFactory) getBeanFactory()).destroySingletons();
+        }
     }
 
     @Override
