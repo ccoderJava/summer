@@ -1,5 +1,6 @@
 package com.dianpoint.summer.aop;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -67,6 +68,10 @@ public class ReflectiveMethodInvocation implements MethodInvocation {
             MethodInterceptor interceptor = interceptors.get(currentIndex++);
             return interceptor.invoke(this);
         }
-        return this.method.invoke(this.target, this.arguments);
+        try {
+            return this.method.invoke(this.target, this.arguments);
+        } catch (InvocationTargetException e) {
+            throw e.getTargetException();
+        }
     }
 }
