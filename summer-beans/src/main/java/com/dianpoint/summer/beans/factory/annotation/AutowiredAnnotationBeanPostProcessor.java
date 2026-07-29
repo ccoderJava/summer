@@ -23,9 +23,10 @@ public class AutowiredAnnotationBeanPostProcessor implements BeanPostProcessor {
         for (Field field : fields) {
             boolean isAnnotation = field.isAnnotationPresent(Autowired.class);
             if (isAnnotation) {
-                // 根据属性名称查找同名的bean
                 String fieldName = field.getName();
-                Object autowiredObject = this.getBeanFactory().getBean(fieldName);
+                Qualifier qualifier = field.getAnnotation(Qualifier.class);
+                String beanNameToInject = qualifier != null ? qualifier.value() : fieldName;
+                Object autowiredObject = this.getBeanFactory().getBean(beanNameToInject);
                 field.setAccessible(true);
                 try {
                     field.set(bean, autowiredObject);

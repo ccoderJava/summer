@@ -41,7 +41,7 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
         return this.beanNames.toArray(new String[this.beanNames.size()]);
     }
 
-    protected void removeSingleton(String beanName) {
+    public void removeSingleton(String beanName) {
         synchronized (this.singletons) {
             this.singletons.remove(beanName);
             this.beanNames.remove(beanName);

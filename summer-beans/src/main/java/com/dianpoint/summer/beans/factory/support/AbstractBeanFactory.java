@@ -47,22 +47,24 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
 
     @Override
     public Object getBean(String beanName) throws BeansException {
+        Object singleton = this.getSingleton(beanName);
+        if (singleton != null) {
+            return singleton;
+        }
+
         BeanDefinition beanDefinition = beanDefinitions.get(beanName);
+        if (beanDefinition == null) {
+            throw new BeansException("No bean named '" + beanName + "' is defined");
+        }
 
         if (beanDefinition.isSingleton()) {
-            Object singleton = this.getSingleton(beanName);
+            singleton = this.earlySingletonObjects.get(beanName);
             if (singleton == null) {
-                singleton = this.earlySingletonObjects.get(beanName);
-                if (singleton == null) {
-                    singleton = createBean(beanDefinition);
-                    this.registerBean(beanName, singleton);
-                    applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
-
-                    if (beanDefinition.getInitMethodName() != null) {
-                        invokeInitMethod(beanDefinition, singleton);
-                    }
-                    applyBeanPostProcessorsAfterInitialization(singleton, beanName);
-                }
+                singleton = createBean(beanDefinition);
+                this.registerBean(beanName, singleton);
+                applyBeanPostProcessorsBeforeInitialization(singleton, beanName);
+                invokeInitMethods(beanDefinition, singleton);
+                singleton = applyBeanPostProcessorsAfterInitialization(singleton, beanName);
             }
             if (singleton == null) {
                 throw new BeansException("bean is null.");
@@ -72,30 +74,64 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
 
         Object prototype = createBean(beanDefinition);
         applyBeanPostProcessorsBeforeInitialization(prototype, beanName);
-        if (beanDefinition.getInitMethodName() != null) {
-            invokeInitMethod(beanDefinition, prototype);
-        }
-        applyBeanPostProcessorsAfterInitialization(prototype, beanName);
+        invokeInitMethods(beanDefinition, prototype);
+        prototype = applyBeanPostProcessorsAfterInitialization(prototype, beanName);
         if (prototype == null) {
             throw new BeansException("bean is null.");
         }
         return prototype;
     }
 
-    private void invokeInitMethod(BeanDefinition beanDefinition, Object singleton) {
-        Class<?> clazz = singleton.getClass();
-        Method method = null;
-        try {
-            method = clazz.getMethod(beanDefinition.getInitMethodName());
-            method.invoke(singleton);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
+    private void invokeInitMethods(BeanDefinition beanDefinition, Object singleton) {
+        if (singleton instanceof com.dianpoint.summer.beans.factory.InitializingBean) {
+            try {
+                ((com.dianpoint.summer.beans.factory.InitializingBean) singleton).afterPropertiesSet();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (beanDefinition.getInitMethodName() != null) {
+            Class<?> clazz = singleton.getClass();
+            Method method = null;
+            try {
+                method = clazz.getMethod(beanDefinition.getInitMethodName());
+                method.invoke(singleton);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public abstract Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName);
 
     public abstract Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName);
+
+    public void destroySingletons() {
+        String[] singletonNames = getSingletonNames();
+        for (String beanName : singletonNames) {
+            Object singleton = getSingleton(beanName);
+            if (singleton instanceof com.dianpoint.summer.beans.factory.DisposableBean) {
+                try {
+                    ((com.dianpoint.summer.beans.factory.DisposableBean) singleton).destroy();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            BeanDefinition bd = beanDefinitions.get(beanName);
+            if (bd != null && bd.getDestroyMethodName() != null) {
+                invokeDestroyMethod(singleton, bd.getDestroyMethodName());
+            }
+        }
+    }
+
+    private void invokeDestroyMethod(Object bean, String methodName) {
+        try {
+            Method method = bean.getClass().getMethod(methodName);
+            method.invoke(bean);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public boolean containsBean(String name) {
@@ -210,6 +246,24 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
                     } else if ("int".equals(constructorArgumentValue.getType())) {
                         paramTypes[i] = int.class;
                         paramValues[i] = Integer.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("long".equals(constructorArgumentValue.getType())
+                        || "java.lang.Long".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = Long.class;
+                        paramValues[i] = Long.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("Long".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = long.class;
+                        paramValues[i] = Long.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("boolean".equals(constructorArgumentValue.getType())
+                        || "java.lang.Boolean".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = Boolean.class;
+                        paramValues[i] = Boolean.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("Boolean".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = boolean.class;
+                        paramValues[i] = Boolean.valueOf((String)constructorArgumentValue.getValue());
+                    } else if ("double".equals(constructorArgumentValue.getType())
+                        || "java.lang.Double".equals(constructorArgumentValue.getType())) {
+                        paramTypes[i] = Double.class;
+                        paramValues[i] = Double.valueOf((String)constructorArgumentValue.getValue());
                     } else {
                         paramTypes[i] = String.class;
                         paramValues[i] = constructorArgumentValue.getValue();
@@ -260,8 +314,25 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry
                     } else if ("int".equals(pType)) {
                         paramTypes[0] = int.class;
                         pValue = Integer.valueOf(pValue+"");
+                    } else if ("long".equals(pType)
+                        || "java.lang.Long".equals(pType)) {
+                        paramTypes[0] = Long.class;
+                        pValue = Long.valueOf(pValue+"");
+                    } else if ("Long".equals(pType)) {
+                        paramTypes[0] = long.class;
+                        pValue = Long.valueOf(pValue+"");
+                    } else if ("boolean".equals(pType)
+                        || "java.lang.Boolean".equals(pType)) {
+                        paramTypes[0] = Boolean.class;
+                        pValue = Boolean.valueOf(pValue+"");
+                    } else if ("Boolean".equals(pType)) {
+                        paramTypes[0] = boolean.class;
+                        pValue = Boolean.valueOf(pValue+"");
+                    } else if ("double".equals(pType)
+                        || "java.lang.Double".equals(pType)) {
+                        paramTypes[0] = Double.class;
+                        pValue = Double.valueOf(pValue+"");
                     } else {
-                        // TODO: 2023/3/18 此处对于数据类型需要逐个处理 此处仅仅建立框架 后续完善 兜底String类型处理
                         paramTypes[0] = String.class;
                     }
                     paramValues[0] = pValue;
