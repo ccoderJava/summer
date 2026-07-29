@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * @email: congccoder@gmail.com
  * @date: 2023/3/17 16:58
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Autowired {
 
