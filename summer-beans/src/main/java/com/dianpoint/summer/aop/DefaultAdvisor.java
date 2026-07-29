@@ -8,6 +8,7 @@ package com.dianpoint.summer.aop;
 public class DefaultAdvisor implements Advisor {
 
     private MethodInterceptor methodInterceptor;
+    private Pointcut pointcut;
 
     @Override
     public MethodInterceptor getMethodInterceptor() {
@@ -22,5 +23,15 @@ public class DefaultAdvisor implements Advisor {
     @Override
     public Advice getAdvice() {
         return methodInterceptor;
+    }
+
+    @Override
+    public Pointcut getPointcut() {
+        return pointcut;
+    }
+
+    @Override
+    public void setPointcut(Pointcut pointcut) {
+        this.pointcut = pointcut;
     }
 }
