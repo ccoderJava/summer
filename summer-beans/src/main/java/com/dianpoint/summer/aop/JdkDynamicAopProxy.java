@@ -38,9 +38,9 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler {
             return method.invoke(target, args);
         }
 
-        MethodInterceptor interceptor = this.advisor.getMethodInterceptor();
         ReflectiveMethodInvocation invocation =
-            new ReflectiveMethodInvocation(proxy, target, method, args, targetClass);
-        return interceptor.invoke(invocation);
+            new ReflectiveMethodInvocation(proxy, target, method, args, targetClass,
+                this.advisor.getMethodInterceptors());
+        return invocation.proceed();
     }
 }

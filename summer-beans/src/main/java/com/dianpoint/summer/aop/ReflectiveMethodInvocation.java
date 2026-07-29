@@ -1,6 +1,8 @@
 package com.dianpoint.summer.aop;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 
 public class ReflectiveMethodInvocation implements MethodInvocation {
 
@@ -9,15 +11,24 @@ public class ReflectiveMethodInvocation implements MethodInvocation {
     private final Object[] arguments;
     private final Method method;
     private Class<?> targetClass;
+    private final List<MethodInterceptor> interceptors;
+    private int currentIndex = 0;
 
-    public ReflectiveMethodInvocation(Object proxy, Object target, Method method, Object[] arguments, Class<?> targetClass) {
+    public ReflectiveMethodInvocation(Object proxy, Object target, Method method, Object[] arguments,
+            Class<?> targetClass) {
+        this(proxy, target, method, arguments, targetClass,
+            Collections.<MethodInterceptor>emptyList());
+    }
+
+    public ReflectiveMethodInvocation(Object proxy, Object target, Method method, Object[] arguments,
+            Class<?> targetClass, List<MethodInterceptor> interceptors) {
         this.proxy = proxy;
         this.target = target;
         this.arguments = arguments;
         this.targetClass = targetClass;
         this.method = method;
+        this.interceptors = interceptors;
     }
-
 
     @Override
     public Method getMethod() {
@@ -52,6 +63,10 @@ public class ReflectiveMethodInvocation implements MethodInvocation {
 
     @Override
     public Object proceed() throws Throwable {
+        if (currentIndex < interceptors.size()) {
+            MethodInterceptor interceptor = interceptors.get(currentIndex++);
+            return interceptor.invoke(this);
+        }
         return this.method.invoke(this.target, this.arguments);
     }
 }

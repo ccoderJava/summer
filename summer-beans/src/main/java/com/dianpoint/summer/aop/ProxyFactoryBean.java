@@ -49,7 +49,9 @@ public class ProxyFactoryBean implements FactoryBean<Object> {
         }
 
         advisor = new DefaultAdvisor();
-        advisor.setMethodInterceptor(methodInterceptor);
+        if (methodInterceptor != null) {
+            advisor.addMethodInterceptor(methodInterceptor);
+        }
     }
 
     @Override

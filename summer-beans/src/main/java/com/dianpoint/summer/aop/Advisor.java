@@ -1,15 +1,16 @@
 package com.dianpoint.summer.aop;
 
-/**
- * @author: github/ccoderJava
- * @email: congccoder@gmail.com
- * @date: 2023/3/26 22:17
- */
+import java.util.List;
+
 public interface Advisor {
 
     MethodInterceptor getMethodInterceptor();
 
     void setMethodInterceptor(MethodInterceptor methodInterceptor);
+
+    List<MethodInterceptor> getMethodInterceptors();
+
+    void addMethodInterceptor(MethodInterceptor methodInterceptor);
 
     Advice getAdvice();
 

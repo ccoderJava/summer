@@ -27,4 +27,20 @@ public class DefaultAdvisorTest {
         advisor.setMethodInterceptor(interceptor);
         assertThat(advisor.getAdvice()).isSameAs(interceptor);
     }
+
+    @Test
+    public void testGetMethodInterceptors_returnsList() {
+        DefaultAdvisor advisor = new DefaultAdvisor();
+        assertThat(advisor.getMethodInterceptors()).isNotNull();
+        assertThat(advisor.getMethodInterceptors()).isEmpty();
+    }
+
+    @Test
+    public void testAddMethodInterceptor() {
+        DefaultAdvisor advisor = new DefaultAdvisor();
+        MethodInterceptor interceptor = invocation -> "result";
+        advisor.addMethodInterceptor(interceptor);
+        assertThat(advisor.getMethodInterceptors()).hasSize(1);
+        assertThat(advisor.getMethodInterceptor()).isSameAs(interceptor);
+    }
 }
