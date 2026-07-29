@@ -34,7 +34,7 @@ public class BeansAutowiredTest {
 
     @Test
     public void autowiredBean_baseServiceCase() throws BeansException {
-        assertThatThrownBy(()->applicationContext.getBean("baseService1")).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(()->applicationContext.getBean("baseService1")).isInstanceOf(BeansException.class);
 
     }
 
