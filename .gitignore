@@ -39,6 +39,12 @@ target/
 .fleet
 
 
+# Eclipse
+.project
+.classpath
+.settings/
+.factorypath
+
 # macOS
 .DS_Store
 
