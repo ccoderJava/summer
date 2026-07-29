@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.dianpoint.summer.beans.BeansException;
 import com.dianpoint.summer.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import com.dianpoint.summer.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import com.dianpoint.summer.beans.factory.config.BeanFactoryPostProcessor;
 import com.dianpoint.summer.beans.factory.config.ConfigurableListableBeanFactory;
 import com.dianpoint.summer.beans.factory.support.DefaultListableBeanFactory;
@@ -21,6 +22,8 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     private DefaultListableBeanFactory beanFactory;
 
     private List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
+
+    private InitDestroyAnnotationBeanPostProcessor initDestroyBeanPostProcessor;
 
     public ClassPathXmlApplicationContext(String fileName) {
         this(fileName, true);
@@ -117,11 +120,21 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     @Override
     public void registerBeanPostProcessors(ConfigurableListableBeanFactory configurableListableBeanFactory) {
         this.beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
+        this.initDestroyBeanPostProcessor = new InitDestroyAnnotationBeanPostProcessor();
+        this.beanFactory.addBeanPostProcessor(this.initDestroyBeanPostProcessor);
     }
 
     @Override
     public void onRefresh() {
         this.beanFactory.refresh();
+    }
+
+    @Override
+    public void close() {
+        if (this.initDestroyBeanPostProcessor != null) {
+            this.initDestroyBeanPostProcessor.destroy();
+        }
+        super.close();
     }
 
 }
