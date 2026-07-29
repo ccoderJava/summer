@@ -21,8 +21,6 @@ import com.dianpoint.summer.core.Resource;
 public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     private DefaultListableBeanFactory beanFactory;
 
-    private List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
-
     private InitDestroyAnnotationBeanPostProcessor initDestroyBeanPostProcessor;
 
     public ClassPathXmlApplicationContext(String fileName) {
@@ -91,7 +89,7 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    public void addApplicationListener(ApplicationListener listener) {
+    public void addApplicationListener(ApplicationListener<?> listener) {
         getApplicationEventPublisher().addApplicationListener(listener);
     }
 
@@ -102,8 +100,11 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     @Override
     public void registerListeners() {
-        ApplicationListener applicationListener = new ApplicationListener();
-        this.getApplicationEventPublisher().addApplicationListener(applicationListener);
+        this.getApplicationEventPublisher().addApplicationListener(new ApplicationListener<ApplicationEvent>() {
+            @Override
+            public void onApplicationEvent(ApplicationEvent event) {
+            }
+        });
     }
 
     @Override
@@ -114,7 +115,13 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) {
-
+        for (BeanFactoryPostProcessor processor : this.getBeanFactoryPostProcessors()) {
+            try {
+                processor.postProcessBeanFactory(configurableListableBeanFactory);
+            } catch (BeansException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

@@ -1,26 +1,46 @@
 package com.dianpoint.summer.aop;
 
-/**
- * @author: github/ccoderJava
- * @email: congccoder@gmail.com
- * @date: 2023/3/26 22:18
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class DefaultAdvisor implements Advisor {
 
-    private MethodInterceptor methodInterceptor;
+    private final List<MethodInterceptor> interceptors = new ArrayList<>();
+    private Pointcut pointcut;
 
     @Override
     public MethodInterceptor getMethodInterceptor() {
-        return methodInterceptor;
+        return interceptors.isEmpty() ? null : interceptors.get(0);
     }
 
     @Override
     public void setMethodInterceptor(MethodInterceptor methodInterceptor) {
-        this.methodInterceptor = methodInterceptor;
+        this.interceptors.clear();
+        this.interceptors.add(methodInterceptor);
+    }
+
+    @Override
+    public List<MethodInterceptor> getMethodInterceptors() {
+        return interceptors;
+    }
+
+    @Override
+    public void addMethodInterceptor(MethodInterceptor methodInterceptor) {
+        this.interceptors.add(methodInterceptor);
     }
 
     @Override
     public Advice getAdvice() {
-        return methodInterceptor;
+        return getMethodInterceptor();
+    }
+
+    @Override
+    public Pointcut getPointcut() {
+        return pointcut;
+    }
+
+    @Override
+    public void setPointcut(Pointcut pointcut) {
+        this.pointcut = pointcut;
     }
 }
